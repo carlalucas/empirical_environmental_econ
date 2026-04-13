@@ -10,6 +10,8 @@ library(fixest)
 library(modelsummary)
 library(patchwork)
 library(scales)
+library(knitr)
+library(kableExtra)
 
 df <- read_dta("data/analysisdataset.dta")
 
@@ -23,10 +25,6 @@ treated_2008 <- df %>%
 
 df <- df %>%
   mutate(treated_group = as.integer(muni_ID %in% treated_2008))
-
-# check - should be 36
-cat("Treated municipalities (2008 list only):", 
-    n_distinct(df$muni_ID[df$treated_group == 1]), "\n")
 
 # post treatment indicator
 df <- df %>%
@@ -206,7 +204,6 @@ modelsummary(
   gof_map     = c("nobs", "r.squared", "adj.r.squared"),
   add_rows    = rows_extra,
   title       = "Table 1: DiD estimates - effect of priority list on deforestation (2006–2010)",
-  notes       = "SE clustered at municipality level. Sample: 2006–2010 as in Assuncao et al. (2023). Post = 1 for 2009–2010. Model (2) uses the same covariates as the authors' partialling-out regression.",
   output      = "output/did_results.html"
 )
 
@@ -219,3 +216,39 @@ modelsummary(
   add_rows    = rows_extra,
   title       = "Table 1: DiD estimates - effect of priority list on deforestation (2006–2010)"
 )
+
+
+# ============================================================
+# Part 3: km² results
+# ============================================================
+
+# counterfactual (treatment turned off)
+df_counterfactual <- df_treated_post %>% mutate(treat_x_post = 0)
+
+# log-odds for both scenarios
+logodds_real <- predict(did_2, newdata = df_treated_post)
+logodds_fake <- predict(did_2, newdata = df_counterfactual)
+
+# Transform to probabilities, calculate the difference, and convert to km²
+df_results <- df_treated_post %>%
+  mutate(
+    prob_real  = plogis(logodds_real),
+    prob_fake  = plogis(logodds_fake),
+    diff_prob  = prob_real - prob_fake,
+    effect_km2 = diff_prob * forest_area 
+  )
+
+# summary metrics
+avg_att_per_muni     <- mean(df_results$effect_km2, na.rm = TRUE)
+total_cumulative_km2 <- sum(df_results$effect_km2, na.rm = TRUE)
+
+# summary table
+outcomes_table <- data.frame(
+  Metric = c("ATT (Average effect per municipality in km², 2009-2010)", 
+             "Total Cumulative Effect (in km², 2009-2010)"),
+  Value  = c(round(avg_att_per_muni, 2), round(total_cumulative_km2, 2))
+)
+
+# table
+kable(outcomes_table, align = "c", caption = "Table 2: Treatment effects on deforestation (in km²)") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
