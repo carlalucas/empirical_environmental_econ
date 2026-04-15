@@ -128,54 +128,74 @@ het_port_cont <- feols(
 summary(het_port_cont)
 
 # ============================================================
-# Part 3: Regression table
+# Part 3: Economic Incentives (Commodity Prices)
 # ============================================================
 
-models <- list(
+# demean
+df <- df %>%
+  mutate(
+    prices_cattle_dm = prices_cattle - mean(prices_cattle, na.rm = TRUE),
+    prices_agro_dm   = prices_agro - mean(prices_agro, na.rm = TRUE)
+  )
+
+# prices cattle
+het_price_cattle <- feols(
+  logodds ~ treat_x_post + treat_x_post:prices_cattle_dm
+  + l_rain + l_rain2 + l_temperature + pa_share
+  + prices_agro + l_PIB
+  | muni_ID + year,
+  data    = df,
+  cluster = ~muni_ID
+)
+
+# prices agro
+het_price_agro <- feols(
+  logodds ~ treat_x_post + treat_x_post:prices_agro_dm
+  + l_rain + l_rain2 + l_temperature + pa_share
+  + prices_cattle + l_PIB
+  | muni_ID + year,
+  data    = df,
+  cluster = ~muni_ID
+)
+
+summary(het_price_cattle)
+summary(het_price_agro)
+
+# ============================================================
+# Table
+# ============================================================
+
+models_ext <- list(
   "(1) Surroundedness" = het_surround,
-  "(2) Port - binary"  = het_port,
-  "(3) Port - continuous" = het_port_cont
+  "(2) Port (Binary)"  = het_port,
+  "(3) Port (Cont.)"   = het_port_cont,
+  "(4) Beef Price"     = het_price_cattle,
+  "(5) Crop Price"     = het_price_agro
 )
 
-coef_labels <- c(
-  "treat_post_lowsurr"          = "Priority×Post (low surroundedness)",
-  "treat_post_highsurr"         = "Priority×Post (high surroundedness)",
-  "treat_post_far"              = "Priority×Post (far from port)",
-  "treat_post_close"            = "Priority×Post (close to port)",
-  "treat_x_post"                = "Priority×Post",
-  "treat_x_post:dist_port_dm"   = "Priority×Post × Distance to port"
+coef_labels_ext <- c(
+  "treat_post_lowsurr"              = "Priority×Post (low surroundedness)",
+  "treat_post_highsurr"             = "Priority×Post (high surroundedness)",
+  "treat_post_far"                  = "Priority×Post (far from port)",
+  "treat_post_close"                = "Priority×Post (close to port)",
+  "treat_x_post"                    = "Priority×Post (at average distance/price)",
+  "treat_x_post:dist_port_dm"       = "Priority×Post × Distance to port",
+  "treat_x_post:prices_cattle_dm"   = "Priority×Post × Beef Price",
+  "treat_x_post:prices_agro_dm"     = "Priority×Post × Crop Price"
 )
 
-extra_rows <- data.frame(
-  term = c("Municipality FE", "Year FE", "Covariates"),
-  `(1) Surroundedness`    = c("Yes", "Yes", "Yes"),
-  `(2) Port - binary`     = c("Yes", "Yes", "Yes"),
-  `(3) Port - continuous` = c("Yes", "Yes", "Yes"),
-  check.names = FALSE
-)
-attr(extra_rows, "position") <- c(7, 8, 9)
-
+# Génération de la table complète
 modelsummary(
-  models,
+  models_ext,
   stars    = c("*" = .10, "**" = .05, "***" = .01),
-  coef_map = coef_labels,
+  coef_map = coef_labels_ext,
   gof_map  = c("nobs", "adj.r.squared"),
-  add_rows = extra_rows,
-  title    = "Table 2: Heterogeneous effects of the priority list",
-  output = "output/het_results.html"
-)
-
-modelsummary(
-  models,
-  stars    = c("*" = .10, "**" = .05, "***" = .01),
-  coef_map = coef_labels,
-  gof_map  = c("nobs", "adj.r.squared"),
-  add_rows = extra_rows,
-  title    = "Table 2: Heterogeneous effects of the priority list"
+  title    = "Table 2: Heterogeneous effects",
+  output   = "output/het_results.html"
 )
 
 # ============================================================
-# Part 4: Figures
+# Figures
 # ============================================================
 
 # Surroundedness

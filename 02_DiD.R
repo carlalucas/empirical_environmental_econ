@@ -223,6 +223,7 @@ modelsummary(
 # ============================================================
 
 # counterfactual (treatment turned off)
+df_treated_post <- df %>% filter(treated_group == 1, post == 1)
 df_counterfactual <- df_treated_post %>% mutate(treat_x_post = 0)
 
 # log-odds for both scenarios
