@@ -26,9 +26,9 @@ df <- df %>%
 # post treatment indicator
 df <- df %>%
   mutate(
-    post         = as.integer(year >= 2009),
+    post = as.integer(year >= 2009),
     treat_x_post = treated_group * post,
-    rel_year     = year - 2008   # relatively to reform year
+    rel_year = year - 2008   # relatively to reform year
   )
 
 # ============================================================
@@ -57,20 +57,15 @@ df <- df %>%
 
 # regression
 het_surround <- feols(
-  logodds ~ treat_post_lowsurr + treat_post_highsurr
-          + l_rain + l_rain2 + l_temperature + pa_share
-          + prices_cattle + prices_agro + l_PIB
-          | muni_ID + year,
+  logodds ~ treat_post_lowsurr + treat_post_highsurr + l_rain + l_rain2 + l_temperature + pa_share + prices_cattle + prices_agro + l_PIB | muni_ID + year,
   data    = df,
-  cluster = ~muni_ID
-)
+  cluster = ~muni_ID)
 
 summary(het_surround)
 
 # are the two coefficients statistically different?
 cat("\nWald test - high vs low surroundedness (H0: equal effects)\n")
-linearHypothesis(het_surround,
-  "treat_post_highsurr - treat_post_lowsurr = 0")
+linearHypothesis(het_surround,"treat_post_highsurr - treat_post_lowsurr = 0")
 
 # ============================================================
 # Part 2: Distance to port
@@ -100,30 +95,19 @@ df <- df %>%
 
 # regression on binary split
 het_port <- feols(
-  logodds ~ treat_post_far + treat_post_close
-          + l_rain + l_rain2 + l_temperature + pa_share
-          + prices_cattle + prices_agro + l_PIB
-          | muni_ID + year,
-  data    = df,
-  cluster = ~muni_ID
-)
+  logodds ~ treat_post_far + treat_post_close + l_rain + l_rain2 + l_temperature + pa_share + prices_cattle + prices_agro + l_PIB| muni_ID + year,
+  data    = df, cluster = ~muni_ID )
 
 summary(het_port)
 
 # are the two coefficients statistically different?
 cat("\nWald test - far vs close to port (H0: equal effects)\n")
-linearHypothesis(het_port,
-  "treat_post_far - treat_post_close = 0")
+linearHypothesis(het_port, "treat_post_far - treat_post_close = 0")
 
 # Regression on continuous interaction (robustness)
 het_port_cont <- feols(
-  logodds ~ treat_x_post + treat_x_post:dist_port_dm
-          + l_rain + l_rain2 + l_temperature + pa_share
-          + prices_cattle + prices_agro + l_PIB
-          | muni_ID + year,
-  data    = df,
-  cluster = ~muni_ID
-)
+  logodds ~ treat_x_post + treat_x_post:dist_port_dm + l_rain + l_rain2 + l_temperature + pa_share + prices_cattle + prices_agro + l_PIB| muni_ID + year,
+  data    = df,cluster = ~muni_ID)
 
 summary(het_port_cont)
 
@@ -133,30 +117,17 @@ summary(het_port_cont)
 
 # demean
 df <- df %>%
-  mutate(
-    prices_cattle_dm = prices_cattle - mean(prices_cattle, na.rm = TRUE),
-    prices_agro_dm   = prices_agro - mean(prices_agro, na.rm = TRUE)
-  )
+  mutate(prices_cattle_dm = prices_cattle - mean(prices_cattle, na.rm = TRUE),
+    prices_agro_dm   = prices_agro - mean(prices_agro, na.rm = TRUE))
 
 # prices cattle
 het_price_cattle <- feols(
-  logodds ~ treat_x_post + treat_x_post:prices_cattle_dm
-  + l_rain + l_rain2 + l_temperature + pa_share
-  + prices_agro + l_PIB
-  | muni_ID + year,
-  data    = df,
-  cluster = ~muni_ID
-)
+  logodds ~ treat_x_post + treat_x_post:prices_cattle_dm + l_rain + l_rain2 + l_temperature + pa_share + prices_agro + l_PIB | muni_ID + year,
+  data    = df, cluster = ~muni_ID)
 
 # prices agro
-het_price_agro <- feols(
-  logodds ~ treat_x_post + treat_x_post:prices_agro_dm
-  + l_rain + l_rain2 + l_temperature + pa_share
-  + prices_cattle + l_PIB
-  | muni_ID + year,
-  data    = df,
-  cluster = ~muni_ID
-)
+het_price_agro <- feols(logodds ~ treat_x_post + treat_x_post:prices_agro_dm + l_rain + l_rain2 + l_temperature + pa_share + prices_cattle + l_PIB| muni_ID + year,
+  data    = df, cluster = ~muni_ID)
 
 summary(het_price_cattle)
 summary(het_price_agro)
@@ -166,33 +137,30 @@ summary(het_price_agro)
 # ============================================================
 
 models_ext <- list(
-  "(1) Surroundedness" = het_surround,
-  "(2) Port (Binary)"  = het_port,
-  "(3) Port (Cont.)"   = het_port_cont,
-  "(4) Beef Price"     = het_price_cattle,
-  "(5) Crop Price"     = het_price_agro
+  "(1) Surroundedness"= het_surround,
+  "(2) Port (Binary)"= het_port,
+  "(3) Port (Cont.)" = het_port_cont,
+  "(4) Beef Price"= het_price_cattle,
+  "(5) Crop Price" = het_price_agro
 )
 
-coef_labels_ext <- c(
-  "treat_post_lowsurr"              = "Priority×Post (low surroundedness)",
-  "treat_post_highsurr"             = "Priority×Post (high surroundedness)",
-  "treat_post_far"                  = "Priority×Post (far from port)",
-  "treat_post_close"                = "Priority×Post (close to port)",
-  "treat_x_post"                    = "Priority×Post (at average distance/price)",
-  "treat_x_post:dist_port_dm"       = "Priority×Post × Distance to port",
-  "treat_x_post:prices_cattle_dm"   = "Priority×Post × Beef Price",
-  "treat_x_post:prices_agro_dm"     = "Priority×Post × Crop Price"
-)
+coef_labels_ext <- c("treat_post_lowsurr" = "Priority×Post (low surroundedness)",
+  "treat_post_highsurr" = "Priority×Post (high surroundedness)",
+  "treat_post_far" = "Priority×Post (far from port)",
+  "treat_post_close"= "Priority×Post (close to port)",
+  "treat_x_post"= "Priority×Post (at average distance/price)",
+  "treat_x_post:dist_port_dm" = "Priority×Post × Distance to port",
+  "treat_x_post:prices_cattle_dm" = "Priority×Post × Beef Price",
+  "treat_x_post:prices_agro_dm"= "Priority×Post × Crop Price")
 
-# Génération de la table complète
+# table complète
 modelsummary(
   models_ext,
   stars    = c("*" = .10, "**" = .05, "***" = .01),
   coef_map = coef_labels_ext,
   gof_map  = c("nobs", "adj.r.squared"),
   title    = "Table 2: Heterogeneous effects",
-  output   = "output/het_results.html"
-)
+  output   = "output/het_results.html")
 
 # ============================================================
 # Figures
@@ -200,66 +168,35 @@ modelsummary(
 
 # Surroundedness
 coef_surr <- data.frame(
-  group    = factor(
-    c("Low surroundedness\n(few treated neighbours)",
-      "High surroundedness\n(many treated neighbours)"),
-    levels = c("High surroundedness\n(many treated neighbours)",
-               "Low surroundedness\n(few treated neighbours)")
-  ),
-  estimate = c(coef(het_surround)["treat_post_lowsurr"],
-               coef(het_surround)["treat_post_highsurr"]),
-  se       = c(sqrt(vcov(het_surround)["treat_post_lowsurr","treat_post_lowsurr"]),
-               sqrt(vcov(het_surround)["treat_post_highsurr","treat_post_highsurr"]))
+  group = factor(c("Low surroundedness\n(few treated neighbours)", "High surroundedness\n(many treated neighbours)"),
+  levels = c("High surroundedness\n(many treated neighbours)", "Low surroundedness\n(few treated neighbours)")),
+  estimate = c(coef(het_surround)["treat_post_lowsurr"], coef(het_surround)["treat_post_highsurr"]),
+  se = c(sqrt(vcov(het_surround)["treat_post_lowsurr","treat_post_lowsurr"]),
+  sqrt(vcov(het_surround)["treat_post_highsurr","treat_post_highsurr"]))
 ) %>%
   mutate(lo = estimate - 1.96*se, hi = estimate + 1.96*se)
 
-p_surround <- ggplot(coef_surr,
-                     aes(x = group, y = estimate, ymin = lo, ymax = hi)) +
-  geom_hline(yintercept = 0, linetype = "dashed", colour = "grey50") +
-  geom_errorbar(width = 0.10, linewidth = 1.0, colour = "#d62728") +
-  geom_point(size = 5, colour = "#d62728") +
-  coord_flip() +
-  labs(
-    title    = "Heterogeneity by surroundedness",
-    subtitle = "Split at median number of treated neighbours (2007)",
-    x = NULL, y = "DiD coefficient on log-odds (95% CI)"
-  ) +
-  theme_bw(base_size = 13)
+p_surround <- ggplot(coef_surr, aes(x = group, y = estimate, ymin = lo, ymax = hi)) + geom_hline(yintercept = 0, linetype = "dashed", colour = "grey50") +
+  geom_errorbar(width = 0.10, linewidth = 1.0, colour = "#d62728") + geom_point(size = 5, colour = "#d62728") + coord_flip() +
+  labs(title    = "Heterogeneity by surroundedness", subtitle = "Split at median number of treated neighbours (2007)",
+    x = NULL, y = "DiD coefficient on log-odds (95% CI)") + theme_bw(base_size = 13)
 
 # Port distance
 coef_port <- data.frame(
-  group    = factor(
-    c("Far from port\n(> 743 km)",
-      "Close to port\n(≤ 743 km)"),
-    levels = c("Close to port\n(≤ 743 km)",
-               "Far from port\n(> 743 km)")
-  ),
-  estimate = c(coef(het_port)["treat_post_far"],
-               coef(het_port)["treat_post_close"]),
-  se       = c(sqrt(vcov(het_port)["treat_post_far","treat_post_far"]),
-               sqrt(vcov(het_port)["treat_post_close","treat_post_close"]))
-) %>%
+  group = factor(c("Far from port\n(> 743 km)", "Close to port\n(≤ 743 km)"), levels = c("Close to port\n(≤ 743 km)", "Far from port\n(> 743 km)")),
+  estimate = c(coef(het_port)["treat_post_far"], coef(het_port)["treat_post_close"]),
+  se= c(sqrt(vcov(het_port)["treat_post_far","treat_post_far"]), sqrt(vcov(het_port)["treat_post_close","treat_post_close"]))) %>%
   mutate(lo = estimate - 1.96*se, hi = estimate + 1.96*se)
 
-p_port <- ggplot(coef_port,
-                 aes(x = group, y = estimate, ymin = lo, ymax = hi)) +
-  geom_hline(yintercept = 0, linetype = "dashed", colour = "grey50") +
-  geom_errorbar(width = 0.10, linewidth = 1.0, colour = "#1f77b4") +
-  geom_point(size = 5, colour = "#1f77b4") +
-  coord_flip() +
-  labs(
-    title    = "Heterogeneity by distance to nearest port",
-    subtitle = "Split at median distance (~743 km)",
-    x = NULL, y = "DiD coefficient on log-odds (95% CI)"
-  ) +
+p_port <- ggplot(coef_port, aes(x = group, y = estimate, ymin = lo, ymax = hi)) +
+  geom_hline(yintercept = 0, linetype = "dashed", colour = "grey50") + geom_errorbar(width = 0.10, linewidth = 1.0, colour = "#1f77b4") +
+  geom_point(size = 5, colour = "#1f77b4") + coord_flip() +
+  labs(title    = "Heterogeneity by distance to nearest port", subtitle = "Split at median distance (~743 km)", x = NULL, y = "DiD coefficient on log-odds (95% CI)") +
   theme_bw(base_size = 13)
 
 # Combined figure
 p_combined <- p_surround / p_port +
-  plot_annotation(
-    title   = "Heterogeneous treatment effects of the priority list",
-    caption = "TWFE DiD with municipality + year FE and paper covariates (2006–2010).\n95% CI based on SE clustered at municipality level."
-  )
+  plot_annotation(title   = "Heterogeneous treatment effects of the priority list", caption = "TWFE DiD with municipality + year FE and paper covariates (2006–2010).\n95% CI based on SE clustered at municipality level.")
 
 print(p_surround)
 print(p_port)
