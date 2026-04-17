@@ -31,9 +31,7 @@ df_2010 <- analysis_df %>%
 
 change_data <- df_2008 %>%
   left_join(df_2010, by = "muni_ID") %>%
-  mutate(
-    change_share = share_10 - share_08,
-    change_flow = flow_10 - flow_08)
+  mutate(change_share = share_10 - share_08, change_flow = flow_10 - flow_08)
 
 merged_change_map <- municipios %>%
   left_join(change_data, by = "muni_ID") %>%
@@ -75,13 +73,9 @@ map_flow <- ggplot() +
     oob = scales::squish,
     name = expression("ΔFlow (km"^2*")"),
     na.value = "grey90") +
-  
   labs(title = "(a) Deforestation Flow (km²)") +
   theme_void() +
-  theme(
-    plot.title = element_text(hjust = 0.5, size = 12, face = "bold"),
-    legend.position = "bottom",
-    legend.key.width = unit(1.5, "cm"))
+  theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"), legend.position = "bottom", legend.key.width = unit(1.5, "cm"))
 
 # =========================================================
 # Part 3: Share map
@@ -99,13 +93,9 @@ map_share <- ggplot() +
     oob = scales::squish,
     name = "ΔShare",
     na.value = "grey90") +
-  
   labs(title = "(b) Deforestation Share") +
   theme_void() +
-  theme(
-    plot.title = element_text(hjust = 0.5, size = 12, face = "bold"),
-    legend.position = "bottom",
-    legend.key.width = unit(1.5, "cm"))
+  theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"), legend.position = "bottom", legend.key.width = unit(1.5, "cm"))
 
 # =========================================================
 # Part 4: Combine and plot
