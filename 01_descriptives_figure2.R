@@ -69,29 +69,11 @@ amazon_label <- "Amazon biome"
 # =========================================================
 
 # map without protected boundaries
-map_status <- ggplot() +
-  geom_sf(data = merged_municipios, aes(fill = priority_status), colour = NA) +
-  
-  geom_sf(
-    data = amazon_biome,
-    aes(colour = amazon_label),
-    fill = NA,
-    linewidth = 0.4,
-    show.legend = TRUE) +
-  
-  scale_fill_manual(
-    values = status_palette,
-    name = NULL) +
-  
-  scale_colour_manual(
-    values = c("Amazon biome" = "black"),
-    name = NULL) +
-  
-  guides(fill = guide_legend(order = 1),
-    colour = guide_legend(
-      order = 2,
-      override.aes = list(fill = NA, linewidth = 0.8))) +
-  
+map_status <- ggplot() + geom_sf(data = merged_municipios, aes(fill = priority_status), colour = NA) +
+  geom_sf(data = amazon_biome, aes(colour = amazon_label), fill = NA,linewidth = 0.4, show.legend = TRUE) +
+  scale_fill_manual(values = status_palette, name = NULL) +
+  scale_colour_manual(values = c("Amazon biome" = "black"),name = NULL) +
+  guides(fill = guide_legend(order = 1),colour = guide_legend(order = 2,override.aes = list(fill = NA, linewidth = 0.8))) +
   labs(title = "(a) Priority List") +
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"))
@@ -99,40 +81,13 @@ map_status <- ggplot() +
 # map with protected boundaries
 map_protected <- ggplot() +
   geom_sf(data = merged_municipios, aes(fill = priority_status), colour = NA) +
-  ggpattern::geom_sf_pattern(
-    data = conservation_amazon,
-    fill = NA,
-    colour = "black",
-    pattern = "stripe",
-    pattern_colour = "black",
-    pattern_fill = "black",
-    pattern_alpha = 1,
-    pattern_size = 0.05, 
-    pattern_spacing = 0.02,
-    pattern_density = 0.35,
-    pattern_angle = 45,
-    show.legend = FALSE) +
-  
-  geom_sf(
-    data = amazon_biome,
-    aes(colour = amazon_label), 
-    fill = NA,
-    linewidth = 0.4,
-    show.legend = TRUE) +
-  
-  scale_fill_manual(
-    values = status_palette,
-    name = NULL) +
-  
-  scale_colour_manual(
-    values = c("Amazon biome" = "black"),
-    name = NULL) +
-  
-  guides(fill = guide_legend(order = 1),
-    colour = guide_legend(
-      order = 2,
-      override.aes = list(fill = NA, linewidth = 0.8))) +
-  
+  ggpattern::geom_sf_pattern(data = conservation_amazon, fill = NA, colour = "black", pattern = "stripe", pattern_colour = "black",
+                              pattern_fill = "black", pattern_alpha = 1, pattern_size = 0.05, pattern_spacing = 0.02, pattern_density = 0.35,
+                               pattern_angle = 45, show.legend = FALSE) +
+  geom_sf(data = amazon_biome, aes(colour = amazon_label), fill = NA, linewidth = 0.4, show.legend = TRUE) +
+  scale_fill_manual(values = status_palette, name = NULL) +
+  scale_colour_manual(values = c("Amazon biome" = "black"), name = NULL) +
+  guides(fill = guide_legend(order = 1), colour = guide_legend(order = 2,override.aes = list(fill = NA, linewidth = 0.8))) +
   labs(title = "(b) Priority List and Protected area") +
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"))
@@ -152,74 +107,24 @@ ggsave(filename = "output/final_map.pdf", plot = final_map, width = 12, height =
 # =========================================================
 
 # map without protected boundaries
-map_gn_status <- ggplot() +
-  geom_sf(data = merged_municipios, aes(fill = gn_status), colour = NA) +
-  
-  geom_sf(
-    data = amazon_biome,
-    aes(colour = amazon_label),
-    fill = NA,
-    linewidth = 0.4,
-    show.legend = TRUE) +
-  
-  scale_fill_manual(
-    values = gn_palette,
-    name = NULL) +
-  
-  scale_colour_manual(
-    values = c("Amazon biome" = "black"),
-    name = NULL) +
-  
-  guides(
-    fill = guide_legend(order = 1),
-    colour = guide_legend(
-      order = 2,
-      override.aes = list(fill = NA, linewidth = 0.8))) +
-  
-  labs(title = "(c) Treatment and Spillover") +
-  theme_void() +
+map_gn_status <- ggplot() + geom_sf(data = merged_municipios, aes(fill = gn_status), colour = NA) +
+  geom_sf(data = amazon_biome, aes(colour = amazon_label), fill = NA, linewidth = 0.4, show.legend = TRUE) +
+  scale_fill_manual(values = gn_palette,name = NULL) +
+  scale_colour_manual(values = c("Amazon biome" = "black"), name = NULL) +
+  guides(fill = guide_legend(order = 1), colour = guide_legend(order = 2, override.aes = list(fill = NA, linewidth = 0.8))) +
+  labs(title = "(c) Treatment and Spillover") + theme_void() +
   theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"))
 
 # map with protected boundaries
 map_gn_protected <- ggplot() +
   geom_sf(data = merged_municipios, aes(fill = gn_status), colour = NA) +
-  
-  ggpattern::geom_sf_pattern(
-    data = conservation_amazon,
-    fill = NA,
-    colour = "black",
-    pattern = "stripe",
-    pattern_colour = "black",
-    pattern_fill = "black",
-    pattern_alpha = 1,
-    pattern_size = 0.05, 
-    pattern_spacing = 0.02,
-    pattern_density = 0.35,
-    pattern_angle = 45,
-    show.legend = FALSE
-  ) +
-  
-  geom_sf(
-    data = amazon_biome,
-    aes(colour = amazon_label), 
-    fill = NA,
-    linewidth = 0.4,
-    show.legend = TRUE) +
-  
-  scale_fill_manual(
-    values = gn_palette,
-    name = NULL) +
-  
-  scale_colour_manual(
-    values = c("Amazon biome" = "black"),
-    name = NULL) +
-  
-  guides(
-    fill = guide_legend(order = 1),
-    colour = guide_legend(
-      order = 2,
-      override.aes = list(fill = NA, linewidth = 0.8))) +
-  
+  ggpattern::geom_sf_pattern(data = conservation_amazon, fill = NA, colour = "black", pattern = "stripe", pattern_colour = "black",
+                              pattern_fill = "black", pattern_alpha = 1, pattern_size = 0.05, pattern_spacing = 0.02, pattern_density = 0.35,
+                              pattern_angle = 45, show.legend = FALSE) +
+  geom_sf(data = amazon_biome, aes(colour = amazon_label), fill = NA, linewidth = 0.4,show.legend = TRUE) +
+  scale_fill_manual(values = gn_palette, name = NULL) +
+  scale_colour_manual(values = c("Amazon biome" = "black"), name = NULL) +
+  guides(fill = guide_legend(order = 1),colour = guide_legend(order = 2, override.aes = list(fill = NA, linewidth = 0.8))) +
   labs(title = "(d) Treatment, Spillover and Protected Area") +
   theme_void() +
   theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"))
