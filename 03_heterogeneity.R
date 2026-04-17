@@ -50,10 +50,8 @@ surround_indicator <- df %>%
 
 df <- df %>%
   left_join(surround_indicator, by = "muni_ID") %>%
-  mutate(
-    treat_post_highsurr = treat_x_post * high_surround,
-    treat_post_lowsurr  = treat_x_post * (1 - high_surround)
-  )
+  mutate(treat_post_highsurr = treat_x_post * high_surround,
+    treat_post_lowsurr  = treat_x_post * (1 - high_surround))
 
 # regression
 het_surround <- feols(
@@ -88,10 +86,8 @@ port_indicator <- df %>%
 
 df <- df %>%
   left_join(port_indicator, by = "muni_ID") %>%
-  mutate(
-    treat_post_far   = treat_x_post * (1 - close_port),
-    treat_post_close = treat_x_post * close_port
-  )
+  mutate(treat_post_far   = treat_x_post * (1 - close_port),
+    treat_post_close = treat_x_post * close_port)
 
 # regression on binary split
 het_port <- feols(
@@ -136,13 +132,11 @@ summary(het_price_agro)
 # Table
 # ============================================================
 
-models_ext <- list(
-  "(1) Surroundedness"= het_surround,
+models_ext <- list("(1) Surroundedness"= het_surround,
   "(2) Port (Binary)"= het_port,
   "(3) Port (Cont.)" = het_port_cont,
   "(4) Beef Price"= het_price_cattle,
-  "(5) Crop Price" = het_price_agro
-)
+  "(5) Crop Price" = het_price_agro)
 
 coef_labels_ext <- c("treat_post_lowsurr" = "Priority×Post (low surroundedness)",
   "treat_post_highsurr" = "Priority×Post (high surroundedness)",
@@ -196,7 +190,8 @@ p_port <- ggplot(coef_port, aes(x = group, y = estimate, ymin = lo, ymax = hi)) 
 
 # Combined figure
 p_combined <- p_surround / p_port +
-  plot_annotation(title   = "Heterogeneous treatment effects of the priority list", caption = "TWFE DiD with municipality + year FE and paper covariates (2006–2010).\n95% CI based on SE clustered at municipality level.")
+  plot_annotation(title   = "Heterogeneous treatment effects of the priority list", 
+                  caption = "TWFE DiD with municipality + year FE and paper covariates (2006–2010).\n95% CI based on SE clustered at municipality level.")
 
 print(p_surround)
 print(p_port)

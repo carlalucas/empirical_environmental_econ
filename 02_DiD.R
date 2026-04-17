@@ -158,6 +158,7 @@ modelsummary(models_did, stars = c("*" = .10, "**" = .05, "***" = .01),
   gof_map = c("nobs", "r.squared", "adj.r.squared"), add_rows= rows_extra, title = "Table 1: DiD estimates - effect of priority list on deforestation (2006–2010)")
 
 
+
 # ============================================================
 # Part 3: km2 results
 # ============================================================
