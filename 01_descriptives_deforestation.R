@@ -70,7 +70,7 @@ map_flow <- ggplot() +
     high = "#8E0152", 
     midpoint = 0,
     limits = c(-150, 150), 
-    oob = scales::squish,
+    oob = squish,
     name = expression("ΔFlow (km"^2*")"),
     na.value = "grey90") +
   labs(title = "(a) Deforestation Flow (km²)") +
@@ -90,7 +90,7 @@ map_share <- ggplot() +
     high = "#8E0152", 
     midpoint = 0,
     limits = c(-0.025, 0.025), 
-    oob = scales::squish,
+    oob = squish,
     name = "ΔShare",
     na.value = "grey90") +
   labs(title = "(b) Deforestation Share") +
