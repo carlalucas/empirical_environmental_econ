@@ -9,3 +9,6 @@ This repository contains the replication code for the study on the impact of the
 
 ## How to run
 Run the scripts in chronological order (01 to 03).
+
+## Notes
+`01_descriptive_figure2.R` takes more time as it deals with shapefiles.
