@@ -71,7 +71,7 @@ map_flow <- ggplot() +
     midpoint = 0,
     limits = c(-150, 150), 
     oob = squish,
-    name = expression("ΔFlow (km"^2*")"),
+    name = expression("\\U0394Flow (km"^2*")"),
     na.value = "grey90") +
   labs(title = "(a) Deforestation Flow (km²)") +
   theme_void() +
@@ -91,7 +91,7 @@ map_share <- ggplot() +
     midpoint = 0,
     limits = c(-0.025, 0.025), 
     oob = squish,
-    name = "ΔShare",
+    name = "\\U0394Share",
     na.value = "grey90") +
   labs(title = "(b) Deforestation Share") +
   theme_void() +
